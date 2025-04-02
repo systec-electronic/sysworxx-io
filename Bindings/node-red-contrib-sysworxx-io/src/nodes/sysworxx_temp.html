@@ -1,0 +1,193 @@
+<!-- SPDX-License-Identifier: LGPL-3.0-or-later -->
+<!--
+    (c) SYSTEC electronic AG, D-08468 Heinsdorfergrund, Am Windrad 2
+        www.systec-electronic.com
+-->
+
+<script type="text/html" data-template-name="Temp Sensor">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+
+    <div class="form-row"  id="id-node-div-row-Input-channel">
+        <label for="node-output-channel"><i class="fa fa-list"></i> Channel</label>
+        <select type="text" id="node-input-channel" size="1" onclick="checkTempOptionalTopic()">
+        </select>
+    </div>
+
+    <div class="form-row" id="id-node-div-row-input-sampleRate">
+        <label for="node-input-sampleRate"><i class="fa fa-refresh"></i> Sample Rate</label>
+        <input type="text" id="node-input-sampleRate" style="text-align:end; width:70px">
+        <select id="node-input-sampleUnit" style="width:145px">
+            <option value="SAMPLE_UNIT_MS">Milliseconds</option>
+            <option value="SAMPLE_UNIT_S">Seconds</option>
+        </select>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-delta"><i class="fa fa-retweet"></i> Delta</label>
+        <input type="text" id="node-input-delta" style="text-align:end; width:70px">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-enableModeSetting"><i class="fa fa-expand"></i>Enable Mode Setting</label>
+        <input type="checkbox" id="node-input-enableModeSetting" style="width: auto; vertical-align: top;"
+            onclick="changeTmpModeSetting()">
+    </div>
+
+    <div class="form-row" id="id-node-div-row-input-tmpMode">
+        <label for="node-input-tmpMode"><i class="fa fa-cog"></i> Mode</label>
+        <select type="text" id="node-input-tmpMode" size="1" disabled="disabled" onchange="changeTmpModeSetting()">
+            <option value="TWOWIRE">Two-Wire</option>
+            <option value="THREEWIRE">Three-Wire</option>
+            <option value="FOURWIRE">Four-Wire</option>
+        </select>
+    </div>
+
+    <div class="form-row" id="id-node-div-row-input-tmpType">
+        <label for="node-input-tmpType"><i class="fa fa-cog"></i> Mode</label>
+        <select type="text" id="node-input-tmpType" size="1" disabled="disabled" >
+            <option value="PT100">PT100</option>
+            <option value="PT1000">PT1000</option>
+        </select>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-decimalPlaces"><i class="fa fa-eye"></i> Format</label>
+        <select type="text" id="node-input-decimalPlaces" size="1" style="direction:rtl; text-align:end; width:70px">
+            <option value="DECIMALPLACES_0">0</option>
+            <option value="DECIMALPLACES_1">1</option>
+            <option value="DECIMALPLACES_2">2</option>
+            <option value="DECIMALPLACES_3">3</option>
+            <option value="DECIMALPLACES_ALL">All</option>
+        </select>
+        <label for="node-input-decimalPlaces" style="width:250px">&nbsp;&nbsp;Decimal Place(s)</label>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-savedInput"></label>
+        <input type="hidden" id="node-input-savedInput">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-savedModeSetting"></label>
+        <input type="hidden" id="node-input-savedModeSetting">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-interfaces"></label>
+        <input type="hidden" id="node-input-interfaces">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-optAltTopic"><i class="fa fa-envelope-o"></i></label>
+        <input type="checkbox" id="node-input-optAltTopic" style="width: auto; vertical-align: top;"
+            onclick="checkTempOptionalTopic()">
+        <label style="width: 150px;"> Use alternative topic</label>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-topic"></label>
+        <input type="text" id="node-input-topic" disabled="disabled">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="Temp Sensor">
+    <p>This node reads the temperature sensors on a sysWORXX device</p>
+    <p>Generates a <code>msg.payload</code>
+        with the temperature value of the associated <b>temperature sensor</b>.
+    <p><b>Channel</b> specifies the temperature sensor of the sysWORXX device.</p>
+    <p><b>Sample Rate</b> specifies the measurement interval.</p>
+    <p><b>Delta</b> specifies how many digits the process value must change before it is retransmitted the next time.</p>
+    <p><b>Mode</b> selects the operating mode either in Two-, Three- or Four-Wire and PT100 or PT1000.</p>
+    <p><b>Format</b> specifies how many decimal places the <code>msg.payload</code> output process value contains.
+        Selecting <i>`All`</i> will suppress any format conversion.</p>
+    <h3>Output</h3>
+    <dl class="message-properties">
+        <dt>topic <span class="property-type">string</span></dt>
+        <dd>The topic is <i>`sysworxx/tmp/{channel_number}`</i>, e.g. <i>`sysworxx/tmp/2`</i>.</dd>
+        <dt>payload <span class="property-type">number</span></dt>
+        <dd>The payload is the calculated process value based on the configured modes.</dd>
+    </dl>
+</script>
+
+<script language="javascript">
+    RED.nodes.registerType('Temp Sensor', {
+        category: 'sysWORXX-IO',
+        color: '#00bfff',
+        defaults: {
+            name: {value: ""},
+            channel: {value: "", required: true},
+            savedInput: {value: ""},
+            enableModeSetting: {value: false},
+            tmpMode: {value: "TWOWIRE"},
+            tmpType: {value: "PT100"},
+            sampleRate: {value: "250"},
+            sampleUnit: {value: "SAMPLE_UNIT_MS"},
+            delta: {value: "3"},
+            decimalPlaces: {value: "DECIMALPLACES_1"},
+            optAltTopic: {value: false},
+            topic: {value: ""},
+        },
+        inputs: 0,
+        outputs: 1,
+        icon: "font-awesome/fa-thermometer-2",
+        label: function () {
+            return this.name || "Temp Sensor";
+        },
+        labelStyle: function () {
+            return this.name ? "node_label_italic" : "";
+        },
+
+        oneditprepare: function () {
+            changeTmpModeSetting();
+            $.getJSON('sysworxxInterfaces', function (data) {
+                let sysworxxInterfaces = data;
+                let channelForm = document.getElementById("node-input-channel");
+                for (let k in sysworxxInterfaces.temp_sensors) {
+                    if (sysworxxInterfaces.temp_sensors[k] != null) {
+                        let opt = document.createElement('option');
+                        opt.innerHTML = sysworxxInterfaces.temp_sensors[k];
+                        opt.value = k;
+                        channelForm.appendChild(opt);
+                    }
+                }
+                document.getElementById("node-input-channel").value = document.getElementById("node-input-savedInput").value;
+                checkTempOptionalTopic();
+            });
+        },
+
+        oneditsave: function () {
+            document.getElementById("node-input-savedInput").value = document.getElementById("node-input-channel").value;
+
+            const checked = document.getElementById("node-input-optAltTopic").checked;
+            if (checked) {
+                newTopic = document.getElementById("node-input-topic").value;
+                if (newTopic.length == 0) {
+                    RED.notify(RED._("notification.warning", {message: "Alternative Topic is selected but not specified."}), "warning");
+                }
+            }
+        },
+    });
+
+    function checkTempOptionalTopic() {
+        const checked = document.getElementById("node-input-optAltTopic").checked;
+        document.getElementById("node-input-topic").disabled = !checked;
+
+        if (!checked) {
+            channel = document.getElementById("node-input-channel").value;
+            if ((channel != null) && (channel.length > 0)) {
+                channel = "sysworxx/temp/" + channel;
+                document.getElementById("node-input-topic").value = channel.toLowerCase();
+            }
+        }
+
+    }
+
+    function changeTmpModeSetting() {
+        const enableModeState = document.getElementById("node-input-enableModeSetting").checked;
+        document.getElementById("node-input-tmpMode").disabled = !enableModeState;
+        document.getElementById("node-input-tmpType").disabled = !enableModeState;
+    }
+</script>

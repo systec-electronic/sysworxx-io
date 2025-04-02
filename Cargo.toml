@@ -1,0 +1,125 @@
+[package]
+name = "sysworxx-io"
+version = "2.1.0"
+authors = ["Andreas Dinter"]
+edition = "2018"
+license = "LGPL-3.0-or-later"
+homepage = "http://www.systec-electronic.com"
+description = "I/O library for accessing basic peripherals (digital/analog I/O's, watchdog, etc) on sysWORXX devices"
+resolver = "2"
+
+[workspace]
+members = ["ctr700drv", "Bindings/sysworxx-io-js", "Bindings/Codesys"]
+
+[lib]
+crate-type = ["rlib", "staticlib", "cdylib"]
+
+[[bin]]
+name = "iodaemon"
+
+[[bench]]
+name = "pair_vs_hash_map"
+harness = false
+
+[[example]]
+name = "shared_mem"
+
+[dependencies]
+lazy_static = "1.4.0"
+evdev = "0.13.0"
+nix = "0.16.1"
+parking_lot = "0.10.0"
+industrial-io = "0.2.0"
+rust-ini = "0.14.0"
+sensors = "0.2.1"
+log = { version = "0.4", features = [
+    "max_level_debug",
+    "release_max_level_debug",
+] }
+env_logger = "0.7.1"
+human-sort = "0.2.2"
+crossbeam-channel = "0.4.0"
+libc = "0.2.66"
+signal-hook = "0.1.13"
+json = "0.12.4"
+gpio-cdev = "0.6.0"
+raw_sync = "0.1.5"
+# https://github.com/phil-opp/shared_memory
+# fork of: https://github.com/elast0ny/shared_memory
+shared_memory_extended = "0.13.0"
+
+[dev-dependencies]
+criterion = "0.3"
+rand = "0.7.3"
+float-cmp = "0.6.0"
+
+[package.metadata.deb]
+maintainer = "SYS TEC electronic AG<info@systec-electronic.com>"
+copyright = "2023, SYS TEC electronic AG <info@systec-electronic.com"
+section = "utility"
+priority = "optional"
+
+systemd-units = [
+    { unit-name = "iodaemon", enable = true, start = true, restart-after-upgrade = true, stop-on-upgrade = true },
+    { unit-name = "generate_xml", enable = true, start = true, restart-after-upgrade = true, stop-on-upgrade = true },
+    { unit-name = "codesys-connector", enable = false, start = false, restart-after-upgrade = false, stop-on-upgrade = true },
+]
+
+assets = [
+    [
+        "include/ctr700drv.h",
+        "/usr/include/arm-linux-gnueabihf/",
+        "644",
+    ],
+    [
+        "include/sysworxx_io.h",
+        "/usr/include/arm-linux-gnueabihf/",
+        "644",
+    ],
+    [
+        "include/sysworxx_io_conly.h",
+        "/usr/include/arm-linux-gnueabihf/",
+        "644",
+    ],
+    [
+        "systemd/iodaemon.service",
+        "/etc/systemd/system/",
+        "644",
+    ],
+    [
+        "target/armv7-unknown-linux-gnueabihf/release/iodaemon",
+        "/usr/bin/",
+        "755",
+    ],
+    [
+        "Bindings/Codesys/systemd/codesys-generate-devdesc-xml.service",
+        "/etc/systemd/system/",
+        "644",
+    ],
+    [
+        "target/armv7-unknown-linux-gnueabihf/release/codesys-connector",
+        "/usr/bin/",
+        "755",
+    ],
+    [
+        "Bindings/Codesys/systemd/codesys-connector.service",
+        "/etc/systemd/system/",
+        "644",
+    ],
+    [
+        "target/armv7-unknown-linux-gnueabihf/release/libctr700drv.so",
+        "/usr/lib/arm-linux-gnueabihf/",
+        "755",
+    ],
+    [
+        "target/armv7-unknown-linux-gnueabihf/release/libsysworxx_io.so",
+        "/usr/lib/arm-linux-gnueabihf/",
+        "755",
+    ],
+    [
+        "target/armv7-unknown-linux-gnueabihf/release/libsysworxx_io_js.so",
+        "/usr/lib/libsysworxx_io_js.node",
+        "755",
+    ],
+]
+maintainer-scripts = "systemd"

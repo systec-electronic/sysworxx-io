@@ -1,0 +1,11 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"],
+  "rules": {
+    "no-trailing-spaces": "error",
+    "no-irregular-whitespace": "error",
+    "semi": ["error", "always"],
+    "max-len": [2, { "code": 120 }],
+    "quotes": "off"
+  }
+}

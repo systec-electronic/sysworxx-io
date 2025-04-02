@@ -1,0 +1,186 @@
+<!-- SPDX-License-Identifier: LGPL-3.0-or-later -->
+<!--
+    (c) SYSTEC electronic AG, D-08468 Heinsdorfergrund, Am Windrad 2
+        www.systec-electronic.com
+-->
+
+<script type="text/html" data-template-name="Digital In">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+
+    <div class="form-row"  id="id-node-div-row-input-channel">
+        <label for="node-output-channel"><i class="fa fa-list"></i> Channel</label>
+        <select type="text" id="node-input-channel" size="1" onclick="checkDiOptionalTopic()">
+        </select>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-savedInput"></label>
+        <input type="hidden" id="node-input-savedInput">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-interfaces"></label>
+        <input type="hidden" id="node-input-interfaces">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-dataHigh"><i class="fa fa-arrow-up"></i> Active</label>
+        <input type="text" id="node-input-dataHigh" style="width: 70%">
+        <input type="hidden" id="node-input-typeHigh">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-dataLow"><i class="fa fa-arrow-down"></i> Inactive</label>
+        <input type="text" id="node-input-dataLow" style="width: 70%">
+        <input type="hidden" id="node-input-typeLow">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-optAltTopic"><i class="fa fa-envelope-o"></i></label>
+        <input type="checkbox" id="node-input-optAltTopic" style="width: auto; vertical-align: top;"
+        onclick="checkDiOptionalTopic()">
+        <label style="width: 150px;"> Use alternative topic</label>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-topic"></label>
+        <input type="text" id="node-input-topic" disabled="disabled">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="Digital In">
+    <p>This node reads the digital input on a sysWORXX device.</p>
+    <p>Generates a <code>msg.payload</code> with the value of the associated <b>digital input channel</b>. If the value on the digital input changes, a new message is sent.</p>
+    <p><b>Channel</b> specifies the digital input of the sysWORXX device.</p>
+    <h3>Output</h3>
+    <dl class="message-properties">
+        <dt>topic <span class="property-type">number</span></dt>
+        <dd>The topic is <i>`sysworxx/di/{channel_number}`</i>, e.g. <i>`sysworxx/di/0`</i>.</dd>
+        <dt>payload <span class="property-type">number</span></dt>
+        <dd>The payload is the current digital value.</dd>
+    </dl>
+</script>
+
+<script language="javascript">
+    RED.nodes.registerType('Digital In', {
+        category: 'sysWORXX-IO',
+        color: '#00bfff',
+        defaults: {
+            name: {value: ""},
+            channel: {value: "", required: true},
+            typeHigh: {value: "num"},
+            typeLow: {value: "num"},
+            dataHigh: {value: 1, required: true, validate: (RED.validators.hasOwnProperty('typedInput') ? RED.validators.typedInput('typeHigh') : function (v) {return true})},
+            dataLow: {value: 0, required: true, validate: (RED.validators.hasOwnProperty('typedInput') ? RED.validators.typedInput('typeLow') : function (v) {return true})},
+            savedInput: {value: ""},
+            optAltTopic: {value: false},
+            topic: {value: ""},
+        },
+        inputs: 0,
+        outputs: 1,
+        icon: "arrow-in.png",
+
+        label: function () {
+            return this.name || "Digital In";
+        },
+        labelStyle: function () {
+            return this.name ? "node_label_italic" : "";
+        },
+        oneditprepare: function () {
+            $.getJSON('sysworxxInterfaces', function (data) {
+                let sysworxxInterfaces = data;
+                let channelForm = document.getElementById("node-input-channel");
+                for (let k in sysworxxInterfaces.inputs) {
+                    if (sysworxxInterfaces.inputs[k] != null) {
+                        let opt = document.createElement('option');
+                        opt.innerHTML = sysworxxInterfaces.inputs[k];
+                        opt.value = k;
+                        channelForm.appendChild(opt);
+                    }
+                }
+                document.getElementById("node-input-channel").value = document.getElementById("node-input-savedInput").value;
+                checkDiOptionalTopic();
+
+                // TypedInput widget handler for edit box "node-input-acttype" / "node-input-actdata"
+                $('#node-input-dataHigh').typedInput({
+                    typeField: $("#node-input-typeHigh"),
+                    types: [
+                        {
+                            value: "bool",
+                            label: "boolean",
+                            icon: "red/images/typedInput/bool.svg",
+                            options: ["true", "false"]
+                        },
+                        {
+                            value: "num",
+                            label: "number",
+                            icon: "red/images/typedInput/09.svg",
+                            validate: /^[+-]?[0-9]*\.?[0-9]*([eE][-+]?[0-9]+)?$/
+                        },
+                        {
+                            value: "str",
+                            label: "string",
+                            icon: "red/images/typedInput/az.svg"
+                        }
+                    ]
+                });
+
+                // TypedInput widget handler for edit box "node-input-inacttype" / "node-input-inactdata"
+                $('#node-input-dataLow').typedInput({
+                    typeField: $("#node-input-typeLow"),
+                    types: [
+                        {
+                            value: "bool",
+                            label: "boolean",
+                            icon: "red/images/typedInput/bool.svg",
+                            options: ["false", "true"]
+                        },
+                        {
+                            value: "num",
+                            label: "number",
+                            icon: "red/images/typedInput/09.svg",
+                            validate: /^[+-]?[0-9]*\.?[0-9]*([eE][-+]?[0-9]+)?$/
+                        },
+                        {
+                            value: "str",
+                            label: "string",
+                            icon: "red/images/typedInput/az.svg"
+                        }
+                    ]
+                });
+
+            })
+        },
+
+        oneditsave: function () {
+            document.getElementById("node-input-savedInput").value = document.getElementById("node-input-channel").value;
+
+            const checked = document.getElementById("node-input-optAltTopic").checked;
+            if (checked) {
+                newTopic = document.getElementById("node-input-topic").value;
+                if (newTopic.length == 0) {
+                    RED.notify(RED._("notification.warning", {message: "Alternative Topic is selected but not specified."}), "warning");
+                }
+            }
+        }
+
+    });
+
+    function checkDiOptionalTopic() {
+        let checked = document.getElementById("node-input-optAltTopic").checked;
+        document.getElementById("node-input-topic").disabled = !checked;
+
+        if (!checked) {
+            channel = document.getElementById("node-input-channel").value;
+            if ((channel != null) && (channel.length > 0)) {
+                channel = "sysworxx/di/" + channel;
+                document.getElementById("node-input-topic").value = channel.toLowerCase();
+            }
+        }
+
+    }
+
+</script>

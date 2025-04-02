@@ -1,0 +1,12 @@
+[Unit]
+Description=Generates XML file for CODESYS runtime connector
+After=iodaemon.service
+PartOf=iodaemon.service
+Wants=iodaemon.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/codesys-connector generate-xml /tmp
+
+[Install]
+WantedBy=multi-user.target

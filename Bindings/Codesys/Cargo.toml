@@ -1,0 +1,19 @@
+[package]
+name = "codesys-connector"
+version = "0.5.0"
+edition = "2021"
+homepage = "http://www.systec-electronic.com"
+description = "Application to connect a CODESYS PLC runtime with the sysworxx-io on sysWORXX Devices"
+license = "LGPL-3.0-or-later"
+
+[dependencies]
+anyhow = "1.0.95"
+askama = "0.12.1"
+log = { version = "0.4", features = [
+    "max_level_debug",
+    "release_max_level_debug",
+] }
+clap = { version = "4.5.27", features = ["cargo"] }
+env_logger = "0.7.1"
+packed_struct = "0.10.1"
+sysworxx-io = { path = "../../" }

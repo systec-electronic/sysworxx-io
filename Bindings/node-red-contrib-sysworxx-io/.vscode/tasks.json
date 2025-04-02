@@ -1,0 +1,42 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Clear",
+			"type": "shell",
+			"command": "rm -r dist/",
+			"problemMatcher": []
+		},
+		{
+			"type": "typescript",
+			"tsconfig": "tsconfig.json",
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "build",
+			"label": "tsc: build - tsconfig.json",
+			"dependsOn": "Clear",
+		},
+		{
+			"label": "Compile JavaScript",
+			"type": "shell",
+			"command": "./buildCopy.sh",
+			"dependsOn": "tsc: build - tsconfig.json",
+			"problemMatcher": [],
+			"group": {
+				"kind": "build",
+			}
+		},
+		{
+			"label": "Deploy Package",
+			"type": "shell",
+			"command": "./deploy.sh",
+			"dependsOn": "Compile JavaScript",
+			"problemMatcher": [],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		}
+	]
+}

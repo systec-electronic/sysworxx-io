@@ -1,0 +1,156 @@
+<!-- SPDX-License-Identifier: LGPL-3.0-or-later -->
+<!--
+    (c) SYSTEC electronic AG, D-08468 Heinsdorfergrund, Am Windrad 2
+        www.systec-electronic.com
+-->
+
+<script type="text/html" data-template-name="Run Switch">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-interfaces"></label>
+        <input type="hidden" id="node-input-interfaces">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-dataHigh"><i class="fa fa-arrow-up"></i> Active</label>
+        <input type="text" id="node-input-dataHigh" style="width: 70%">
+        <input type="hidden" id="node-input-typeHigh">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-dataLow"><i class="fa fa-arrow-down"></i> Inactive</label>
+        <input type="text" id="node-input-dataLow" style="width: 70%">
+        <input type="hidden" id="node-input-typeLow">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-optAltTopic"><i class="fa fa-envelope-o"></i></label>
+        <input type="checkbox" id="node-input-optAltTopic" style="width: auto; vertical-align: top;"
+        onclick="checkRunSwitchOptionalTopic()">
+        <label style="width: 150px;"> Use alternative topic</label>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-topic"></label>
+        <input type="text" id="node-input-topic" disabled="disabled">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="Run Switch">
+    <p>This node reads the run switch on a sysWORXX device.</p>
+    <p>Generates a <code>msg.payload</code> with the value of the associated <b>run switch input channel</b>. If the value on the input changes, a new message is sent.</p>
+    <p><b>Attention:</b> this node only works, if the currently used device has an actual run switch!</p>
+    <h3>Output</h3>
+    <dl class="message-properties">
+        <dt>topic <span class="property-type">number</span></dt>
+        <dd>The topic is <i>`sysworxx/runswitch/`</i>.</dd>
+        <dt>payload <span class="property-type">boolean</span></dt>
+        <dd>The payload is the current digital value.</dd>
+    </dl>
+</script>
+
+<script language="javascript">
+    RED.nodes.registerType('Run Switch', {
+        category: 'sysWORXX-IO',
+        color: '#00bfff',
+        defaults: {
+            name: {value: ""},
+            typeHigh: {value: "num"},
+            typeLow: {value: "num"},
+            dataHigh: {value: 1, required: true, validate: (RED.validators.hasOwnProperty('typedInput') ? RED.validators.typedInput('typeHigh') : function (v) {return true})},
+            dataLow: {value: 0, required: true, validate: (RED.validators.hasOwnProperty('typedInput') ? RED.validators.typedInput('typeLow') : function (v) {return true})},
+            optAltTopic: {value: false},
+            topic: {value: "sysworxx/runswitch"},
+        },
+        inputs: 0,
+        outputs: 1,
+        icon: "switch.png",
+
+        label: function () {
+            return this.name || "Run Switch";
+        },
+        labelStyle: function () {
+            return this.name ? "node_label_italic" : "";
+        },
+        oneditprepare: function () {
+            checkRunSwitchOptionalTopic();
+
+            // TypedInput widget handler for edit box "node-input-acttype" / "node-input-actdata"
+            $('#node-input-dataHigh').typedInput({
+                typeField: $("#node-input-typeHigh"),
+                types: [
+                    {
+                        value: "bool",
+                        label: "boolean",
+                        icon: "red/images/typedInput/bool.svg",
+                        options: ["true", "false"]
+                    },
+                    {
+                        value: "num",
+                        label: "number",
+                        icon: "red/images/typedInput/09.svg",
+                        validate: /^[+-]?[0-9]*\.?[0-9]*([eE][-+]?[0-9]+)?$/
+                    },
+                    {
+                        value: "str",
+                        label: "string",
+                        icon: "red/images/typedInput/az.svg"
+                    }
+                ]
+            });
+
+            // TypedInput widget handler for edit box "node-input-inacttype" / "node-input-inactdata"
+            $('#node-input-dataLow').typedInput({
+                typeField: $("#node-input-typeLow"),
+                types: [
+                    {
+                        value: "bool",
+                        label: "boolean",
+                        icon: "red/images/typedInput/bool.svg",
+                        options: ["false", "true"]
+                    },
+                    {
+                        value: "num",
+                        label: "number",
+                        icon: "red/images/typedInput/09.svg",
+                        validate: /^[+-]?[0-9]*\.?[0-9]*([eE][-+]?[0-9]+)?$/
+                    },
+                    {
+                        value: "str",
+                        label: "string",
+                        icon: "red/images/typedInput/az.svg"
+                    }
+                ]
+            });
+
+        },
+
+        oneditsave: function () {
+            document.getElementById("node-input-savedInput").value = document.getElementById("node-input-channel").value;
+
+            const checked = document.getElementById("node-input-optAltTopic").checked;
+            if (checked) {
+                newTopic = document.getElementById("node-input-topic").value;
+                if (newTopic.length == 0) {
+                    RED.notify(RED._("notification.warning", {message: "Alternative Topic is selected but not specified."}), "warning");
+                }
+            }
+        }
+
+    });
+
+    function checkRunSwitchOptionalTopic() {
+        let checked = document.getElementById("node-input-optAltTopic").checked;
+        document.getElementById("node-input-topic").disabled = !checked;
+
+        if (!checked) {
+            let topic = "sysworxx/runswitch";
+            document.getElementById("node-input-topic").value = topic.toLowerCase();
+        }
+    }
+
+</script>

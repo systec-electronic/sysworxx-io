@@ -1,0 +1,125 @@
+<!-- SPDX-License-Identifier: LGPL-3.0-or-later -->
+<!--
+    (c) SYSTEC electronic AG, D-08468 Heinsdorfergrund, Am Windrad 2
+        www.systec-electronic.com
+-->
+
+<script type="text/html" data-template-name="Analog Out">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+
+    <div class="form-row"  id="id-node-div-row-output-channel">
+        <label for="node-output-channel"><i class="fa fa-list"></i> Channel</label>
+        <select type="text" id="node-input-channel" size="1" onclick="checkAoOptionalTopic()">
+        </select>
+    </div>
+   
+    <div class="form-row">
+        <label for="node-input-upperValData"><i class="fa fa-thermometer-full"></i> DAC upper value (32767)</label>
+        <input type="text" id="node-input-upperValData" style="width: 70%">
+    </div>
+    
+    <div class="form-row">
+        <label for="node-input-lowerValData"><i class="fa fa-thermometer-empty"></i> DAC lower value (0)</label>
+        <input type="text" id="node-input-lowerValData" style="width: 70%">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-savedOuput"></label>
+        <input type="hidden" id="node-input-savedOuput">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-interfaces"></label>
+        <input type="hidden" id="node-input-interfaces">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-optAltTopic"><i class="fa fa-envelope-o"></i></label>
+        <input type="checkbox" id="node-input-optAltTopic" style="width: auto; vertical-align: top;"
+            onclick="checkAoOptionalTopic()">
+        <label style="width: 150px;"> Use alternative topic</label>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-topic"></label>
+        <input type="text" id="node-input-topic" disabled="disabled">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="Analog Out">
+    <p>This node changes the analog output on a sysWORXX device.</p>
+    <p>To enable this feature, you have to set the digital output DAC enable.</p>
+    <p>The node status shows the currently used percentage value.</p>
+    <h3>Input</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">number</span></dt>
+        <dd>The payload has to be in range of 0 to 100 and calculates the DAC percentage value depending on the
+            configured upper and lower value.</p>
+        </dd>
+    </dl>
+</script>
+
+<script language="javascript">
+    RED.nodes.registerType('Analog Out', {
+        category: 'sysWORXX-IO',
+        color: '#00bfff',
+        defaults: {
+            name: {value: ""},
+            channel: {value: "", required: true},
+            savedOuput: {value: ""},
+            upperValData: {value: "32767"},
+            lowerValData: {value: "0"},
+            optAltTopic: {value: false},
+            topic: {value: ""},
+        },
+        inputs: 1,
+        outputs: 0,
+        icon: "analog.png",
+        label: function () {
+            return this.name || "Analog Out";
+        },
+        labelStyle: function () {
+            return this.name ? "node_label_italic" : "";
+        },
+
+        oneditprepare: function () {
+            $.getJSON('sysworxxInterfaces', function (data) {
+                let sysworxxInterfaces = data;
+                let channelForm = document.getElementById("node-input-channel");
+                for (let k in sysworxxInterfaces.analog_outputs) {
+                    if (sysworxxInterfaces.analog_outputs[k] != null) {
+                        let opt = document.createElement('option');
+                        opt.innerHTML = sysworxxInterfaces.analog_outputs[k];
+                        opt.value = k;
+                        channelForm.appendChild(opt);
+                    }
+                }
+                document.getElementById("node-input-channel").value = document.getElementById("node-input-savedOuput").value;
+                checkAoOptionalTopic();
+            });
+        },
+
+        oneditsave: function () {
+            document.getElementById("node-input-savedOuput").value = document.getElementById("node-input-channel").value;
+        }
+
+    });
+
+    function checkAoOptionalTopic() {
+        const checked = document.getElementById("node-input-optAltTopic").checked;
+        const channel = document.getElementById("node-input-channel").value;
+        let topic = "sysworxx/ao/" + channel;
+        document.getElementById("node-input-topic").disabled = !checked;
+
+        if (!checked) {
+            topic = document.getElementById("node-input-channel").value;
+            if ((topic != null) && (topic.length > 0)) {
+                topic = "#";
+            }
+        }
+        document.getElementById("node-input-topic").value = topic.toLowerCase();
+    }
+</script>

@@ -1,0 +1,9 @@
+*.sh
+*.tgz
+.eslintrc
+.vscode/
+compiled/
+node_modules/
+src/
+tsconfig.json
+ReleaseNotes.md

@@ -1,0 +1,143 @@
+stages:
+  - docker-image-tag
+  - docker-image
+  - build
+  - package
+
+variables:
+  KANIKO_IMAGE_TAG: latest
+
+default:
+  image:
+    name: "${CI_REGISTRY}/${CI_PROJECT_PATH}:${KANIKO_IMAGE_TAG}"
+  tags: [sys_admin]
+
+.if-docker-updated:
+  rules:
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+      changes:
+        compare_to: "refs/heads/master~1"
+        paths:
+          - docker/**/*
+    - if: $CI_COMMIT_BRANCH
+      changes:
+        compare_to: "refs/heads/master"
+        paths:
+          - docker/**/*
+
+docker-image-tag:
+  stage: docker-image-tag
+  extends: .if-docker-updated
+  image: busybox
+  script:
+    - |
+      if [ $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH ]; then
+        echo "KANIKO_IMAGE_TAG=latest" > kaniko-image-tag.env
+      else
+        echo "KANIKO_IMAGE_TAG=${CI_COMMIT_BRANCH}" > kaniko-image-tag.env
+      fi
+  artifacts:
+    reports:
+      dotenv: kaniko-image-tag.env
+
+docker-image:
+  stage: docker-image
+  extends: .if-docker-updated
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"auth\":\"$(echo -n ${CI_REGISTRY_USER}:${CI_REGISTRY_PASSWORD} | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
+    - |
+      /kaniko/executor \
+        --context "${CI_PROJECT_DIR}" \
+        --dockerfile "${CI_PROJECT_DIR}/docker/Dockerfile" \
+        --insecure \
+        --destination "${CI_REGISTRY_IMAGE}:${KANIKO_IMAGE_TAG}"
+
+.build:
+  stage: build
+  script:
+    - cargo fmt --check
+    - cargo build --release --target "$ARCH"
+    - cargo build --release --workspace --target "$ARCH"
+  artifacts:
+    name: "$CI_JOB_NAME-$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA"
+    when: on_success
+    expire_in: 1 week
+    paths:
+      - systemd/iodaemon.service
+      - target/$ARCH/release/iodaemon
+      - target/$ARCH/release/libctr700drv.so
+      - target/$ARCH/release/libsysworxx_io.so
+      - target/$ARCH/release/libsysworxx_io_js.so
+      - target/$ARCH/release/codesys-connector
+      - Bindings/Codesys/systemd/codesys-connector.service
+      - Bindings/Codesys/systemd/codesys-generate-devdesc-xml.service
+
+.package:
+  stage: package
+  script:
+    - |
+      echo "Build debian package..."
+      cargo deb --no-build --target $ARCH --output sysworxx-io-$ARCH.deb
+  artifacts:
+    name: "$CI_JOB_NAME-$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA"
+    when: on_success
+    expire_in: 1 week
+    paths:
+      - sysworxx-io-*.deb
+
+.demo_bindings:
+  stage: package
+  script:
+    - mkdir -p sysworxx-io-demo-bindings/DEBIAN/
+    - |
+      cat > sysworxx-io-demo-bindings/DEBIAN/control << EOL
+      Package: sysworxx-io-demo-bindings
+      Version: 1.0
+      Section: custom
+      Priority: optional
+      Architecture: armhf
+      Essential: no
+      Maintainer: SYS TEC electronic AG
+      Description: Demo bindings for the sysworxx-io library
+      EOL
+    - mkdir -p sysworxx-io-demo-bindings/usr/share/libctr700drv/demo/
+    - cp -r Bindings/C      sysworxx-io-demo-bindings/usr/share/libctr700drv/demo/
+    - cp -r Bindings/CSharp sysworxx-io-demo-bindings/usr/share/libctr700drv/demo/
+    - cp -r Bindings/Java   sysworxx-io-demo-bindings/usr/share/libctr700drv/demo/
+    - cp -r Bindings/Python sysworxx-io-demo-bindings/usr/share/libctr700drv/demo/
+    - dpkg-deb --build sysworxx-io-demo-bindings
+  artifacts:
+    name: "sysworxx-io-$CI_JOB_NAME-$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA"
+    when: on_success
+    expire_in: 1 week
+    paths:
+      - sysworxx-io-demo-bindings.deb
+
+build-armv7-unknown-linux-gnueabihf:
+  dependencies: [docker-image-tag, docker-image]
+  extends: .build
+  variables:
+    ARCH: armv7-unknown-linux-gnueabihf
+
+build-aarch64-unknown-linux-gnu:
+  dependencies: [docker-image-tag, docker-image]
+  extends: .build
+  variables:
+    ARCH: aarch64-unknown-linux-gnu
+
+package-armv7-unknown-linux-gnueabihf:
+  dependencies:
+    [docker-image-tag, docker-image, build-armv7-unknown-linux-gnueabihf]
+  extends: .package
+  variables:
+    ARCH: armv7-unknown-linux-gnueabihf
+
+demo-bindings-armv7-unknown-linux-gnueabihf:
+  dependencies:
+    [docker-image-tag, docker-image, build-armv7-unknown-linux-gnueabihf]
+  extends: .demo_bindings
+  variables:
+    ARCH: armv7-unknown-linux-gnueabihf

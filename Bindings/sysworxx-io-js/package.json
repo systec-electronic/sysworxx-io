@@ -1,0 +1,20 @@
+{
+  "name": "sysworxx-io-js",
+  "version": "0.1.0",
+  "description": "JavaScript bindings for I/O library for accessing basic peripherals (digital/analog I/O's, watchdog, etc) on sysWORXX devices",
+  "main": "index.node",
+  "scripts": {
+    "build": "cargo-cp-artifact -nc index.node -- cargo build --message-format=json-render-diagnostics",
+    "build-debug": "npm run build --",
+    "build-release": "npm run build -- --release",
+    "build-target": "npm run build -- --release --target armv7-unknown-linux-gnueabihf",
+    "prepack": "npm run build-target",
+    "postinstall": "node -e \"if (! require('fs').existsSync('./index.node')) {process.exit(1)} \" || npm run build-release",
+    "test": "cargo test"
+  },
+  "author": "",
+  "license": "LGPL-3.0-or-later",
+  "dependencies": {
+    "cargo-cp-artifact": "^0.1"
+  }
+}

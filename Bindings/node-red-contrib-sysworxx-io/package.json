@@ -1,0 +1,34 @@
+{
+  "name": "node-red-contrib-sysworxx-io",
+  "version": "2.1.0",
+  "description": "Node-RED nodes for the SYS TEC electronic AG sysWORXX series",
+  "scripts": {
+    "build": "tsc",
+    "copy": "copyfiles -u 2 \"./src/nodes/**/*.html\" \"./dist/nodes/\" && copyfiles -u 2 \"./src/nodes/icons/*\" \"./dist/nodes/\"",
+    "prepack": "npm run build && npm run copy",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "SYS TEC electronic AG",
+  "license": "LGPL-3.0-or-later",
+  "node-red": {
+    "nodes": {
+      "sysworxx_di": "./dist/nodes/sysworxx_di.js",
+      "sysworxx_do": "./dist/nodes/sysworxx_do.js",
+      "sysworxx_ci": "./dist/nodes/sysworxx_ci.js",
+      "sysworxx_ai": "./dist/nodes/sysworxx_ai.js",
+      "sysworxx_ao": "./dist/nodes/sysworxx_ao.js",
+      "sysworxx_temp": "./dist/nodes/sysworxx_temp.js",
+      "sysworxx_run_switch": "./dist/nodes/sysworxx_run_switch.js",
+      "sysworxx_run_led": "./dist/nodes/sysworxx_run_led.js",
+      "sysworxx_err_led": "./dist/nodes/sysworxx_err_led.js"
+    }
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.52.0",
+    "@typescript-eslint/parser": "^5.52.0",
+    "copyfiles": "^2.4.1",
+    "eslint": "^8.34.0",
+    "node-red": "^3.0.2",
+    "typescript": "^3.9.10"
+  }
+}

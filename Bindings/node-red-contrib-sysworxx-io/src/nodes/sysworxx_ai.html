@@ -1,0 +1,252 @@
+<!-- SPDX-License-Identifier: LGPL-3.0-or-later -->
+<!--
+    (c) SYSTEC electronic AG, D-08468 Heinsdorfergrund, Am Windrad 2
+        www.systec-electronic.com
+-->
+
+<script type="text/html" data-template-name="Analog In">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+
+    <div class="form-row"  id="id-node-div-row-Input-channel">
+        <label for="node-output-channel"><i class="fa fa-list"></i> Channel</label>
+        <select type="text" id="node-input-channel" size="1" onclick="checkAiOptionalTopic()">
+        </select>
+    </div>
+
+    <div class="form-row" id="id-node-div-row-input-sampleRate">
+        <label for="node-input-sampleRate"><i class="fa fa-refresh"></i> Sample Rate</label>
+        <input type="text" id="node-input-sampleRate" style="text-align:end; width:70px">
+        <select id="node-input-sampleUnit" style="width:145px">
+            <option value="SAMPLE_UNIT_MS">Milliseconds</option>
+            <option value="SAMPLE_UNIT_S">Seconds</option>
+        </select>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-delta"><i class="fa fa-retweet"></i> Delta</label>
+        <input type="text" id="node-input-delta" style="text-align:end; width:70px">
+        <label for="node-input-delta" style="width:250px">&nbsp;&nbsp;Digits (0.355mV / 0.819uA)</label>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-unit"><i class="fa fa-expand"></i>Unit</label>
+        <input type="checkbox" id="node-input-unit" style="width: auto; vertical-align: top;"
+            onclick="changeModeSetting()">
+        <label style="width: 250px;"> x1000 (V -> mV / mA -> uA)</label>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-enableModeSetting"><i class="fa fa-expand"></i>Enable Mode Setting</label>
+        <input type="checkbox" id="node-input-enableModeSetting" style="width: auto; vertical-align: top;"
+            onclick="changeModeSetting()">
+    </div>
+
+    <div class="form-row" id="id-node-div-row-input-mode">
+        <label for="node-input-mode"><i class="fa fa-cog"></i> Mode</label>
+        <select type="text" id="node-input-mode" size="1" disabled="disabled" onchange="changeModeSetting()">
+            <option value="VOLTAGE">Voltage (0..10V)</option>
+            <option value="CURRENT">Current (0..20mA)</option>
+            <option value="VOLTAGE_USER">User Defined Voltage</option>
+            <option value="CURRENT_USER">User Defined Current</option>
+        </select>
+    </div>
+    
+    <div class="form-row">
+        <label for="node-input-upperValData"><i class="fa fa-thermometer-full"></i> ADC(32767)</label>
+        <input type="text" id="node-input-upperValData" style="width: 70%">
+    </div>
+    
+    <div class="form-row">
+        <label for="node-input-lowerValData"><i class="fa fa-thermometer-empty"></i> ADC(0)</label>
+        <input type="text" id="node-input-lowerValData" style="width: 70%">
+    </div>
+    
+    <div class="form-row">
+        <label for="node-input-decimalPlaces"><i class="fa fa-eye"></i> Format</label>
+        <select type="text" id="node-input-decimalPlaces" size="1" style="direction:rtl; text-align:end; width:70px">
+            <option value="DECIMALPLACES_0">0</option>
+            <option value="DECIMALPLACES_1">1</option>
+            <option value="DECIMALPLACES_2">2</option>
+            <option value="DECIMALPLACES_3">3</option>
+            <option value="DECIMALPLACES_ALL">All</option>
+        </select>
+        <label for="node-input-decimalPlaces" style="width:250px">&nbsp;&nbsp;Decimal Place(s)</label>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-savedInput"></label>
+        <input type="hidden" id="node-input-savedInput">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-savedModeSetting"></label>
+        <input type="hidden" id="node-input-savedModeSetting">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-interfaces"></label>
+        <input type="hidden" id="node-input-interfaces">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-optAltTopic"><i class="fa fa-envelope-o"></i></label>
+        <input type="checkbox" id="node-input-optAltTopic" style="width: auto; vertical-align: top;"
+            onclick="checkAiOptionalTopic()">
+        <label style="width: 150px;"> Use alternative topic</label>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-topic"></label>
+        <input type="text" id="node-input-topic" disabled="disabled">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="Analog In">
+    <p>This node reads the analog input on a sysWORXX device.</p>
+    <p>Generates a <code>msg.payload</code>
+    with the ADC process value of the associated <b>input channel</b>. The input
+    channel can operate either in voltage or current mode.</p>
+    <p><b>Channel</b> specifies the analog input of the sysWORXX device.</p>
+    <p><b>Sample Rate</b> specifies the measurement interval.</p>
+    <p><b>Delta</b> specifies how many digits the process value must change before it is retransmitted the next time.</p>
+    <p><b>Mode</b> selects the operating mode either in voltage or current mode. In the default modes the upper and lower
+        values are set to their corresponding native values.
+        In the user defined modes the upper and lower value can be defined by the user. This allows for generating specific
+        process values.<br>
+        <i><u>Example</u> for user defined mode:</i><br>
+        An 4..20mA Temperature Transmitter with a temperature range of -50&deg;C..+150&deg;C is used. The input in
+        current mode measures from 0..26.84mA. By configuring the lower value to <I>-100</I>
+        and the upper value to <I>235</I> the output value is directly the messured temperatur value in &deg;C.
+    </p>
+    <p><b>ADC(32767)</b> is the <code>msg.payload</code> for upper process value (on ADC output 32767).</p>
+    <p><b>ADC(0)</b> is the <code>msg.payload</code> for lower process value (on ADC output 0).</p>
+    <p><b>Format</b> specifies how many decimal places the <code>msg.payload</code> output process value contains.
+        Selecting <i>`All`</i> will suppress any format conversion.</p>
+    <h3>Output</h3>
+    <dl class="message-properties">
+        <dt>topic <span class="property-type">string</span></dt>
+        <dd>The topic is <i>`sysworxx/ai/{channel_number}`</i>, e.g. <i>`sysworxx/ai/2`</i>.</dd>
+        <dt>payload <span class="property-type">number</span></dt>
+        <dd>The payload is the calculated process value based on configured lower <i>(`ADC(0)`)</i> and upper <i>(`ADC(32767)`)</i> values.</dd>
+    </dl>
+</script>
+
+<script language="javascript">
+    RED.nodes.registerType('Analog In', {
+        category: 'sysWORXX-IO',
+        color: '#00bfff',
+        defaults: {
+            name: {value: ""},
+            channel: {value: "", required: true},
+            savedInput: {value: ""},
+            mode: {value: "VOLTAGE"},
+            enableModeSetting: {value: false},
+            sampleRate: {value: "250"},
+            sampleUnit: {value: "SAMPLE_UNIT_MS"},
+            delta: {value: "3"},
+            unit: {value: false},
+            upperValData: {value: "32767"},
+            lowerValData: {value: "0"},
+            decimalPlaces: {value: "DECIMALPLACES_1"},
+            optAltTopic: {value: false},
+            topic: {value: ""},
+        },
+        inputs: 0,
+        outputs: 1,
+        icon: "analog.png",
+        label: function () {
+            return this.name || "Analog In";
+        },
+        labelStyle: function () {
+            return this.name ? "node_label_italic" : "";
+        },
+
+        oneditprepare: function () {
+            changeModeSetting();
+            $.getJSON('sysworxxInterfaces', function (data) {
+                let sysworxxInterfaces = data;
+                let channelForm = document.getElementById("node-input-channel");
+                for (let k in sysworxxInterfaces.analog_inputs) {
+                    if (sysworxxInterfaces.analog_inputs[k] != null) {
+                        let opt = document.createElement('option');
+                        opt.innerHTML = sysworxxInterfaces.analog_inputs[k];
+                        opt.value = k;
+                        channelForm.appendChild(opt);
+                    }
+                }
+                document.getElementById("node-input-channel").value = document.getElementById("node-input-savedInput").value;
+                checkAiOptionalTopic();
+            });
+        },
+
+        oneditsave: function () {
+            document.getElementById("node-input-savedInput").value = document.getElementById("node-input-channel").value;
+
+            const checked = document.getElementById("node-input-optAltTopic").checked;
+            if (checked) {
+                newTopic = document.getElementById("node-input-topic").value;
+                if (newTopic.length == 0) {
+                    RED.notify(RED._("notification.warning", {message: "Alternative Topic is selected but not specified."}), "warning");
+                }
+            }
+        },
+    });
+
+    function checkAiOptionalTopic() {
+        const checked = document.getElementById("node-input-optAltTopic").checked;
+        document.getElementById("node-input-topic").disabled = !checked;
+
+        if (!checked) {
+            channel = document.getElementById("node-input-channel").value;
+            if ((channel != null) && (channel.length > 0)) {
+                channel = "sysworxx/ai/" + channel;
+                document.getElementById("node-input-topic").value = channel.toLowerCase();
+            }
+        }
+    }
+
+    function changeModeSetting() {
+        const enableModeState = document.getElementById("node-input-enableModeSetting").checked;
+        const optionUnit = document.getElementById("node-input-unit").checked;
+        const selectedMode = document.getElementById("node-input-mode").value;
+
+        let customModeSelected = false;
+        let value;
+
+        switch (selectedMode) {
+            case "VOLTAGE_USER":
+            case "CURRENT_USER":
+                customModeSelected = true;
+                document.getElementById("node-input-unit").checked = false;
+                break;
+            case "CURRENT":
+                value = 32767 * 0.819 // 0.819 uA per ADC digit
+                value = +value.toFixed(0);
+                break;
+
+            case "VOLTAGE":
+            default:
+                value = 32767 * 0.355 // 0.355 V per ADC digit
+                value = +value.toFixed(0);
+                break;
+        }
+
+        if (!optionUnit) {
+            value /= 1000;
+        }
+
+        document.getElementById("node-input-upperValData").disabled = !customModeSelected;
+        document.getElementById("node-input-lowerValData").disabled = !customModeSelected;
+
+        document.getElementById("node-input-unit").disabled = customModeSelected;
+        document.getElementById("node-input-mode").disabled = !enableModeState;
+
+        if (!customModeSelected) {
+            document.getElementById("node-input-upperValData").value = value;
+            document.getElementById("node-input-lowerValData").value = 0;
+        }
+    }
+</script>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DeviceDescription xmlns="http://www.3s-software.com/schemas/DeviceDescription-1.0.xsd"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ts="http://www.3s-software.com/schemas/TargetSettings-0.1.xsd"
+    xsi:schemaLocation="http://www.3s-software.com/schemas/DeviceDescription-1.0.xsd https://de.codesys.com/fileadmin/data/schemas/DeviceDescription-1.0.xsd
+                        http://www.3s-software.com/schemas/TargetSettings-0.1.xsd https://de.codesys.com/fileadmin/data/schemas/TargetSettings-0.1.xsd">
+    <Types namespace="localTypes">
+    </Types>
+    <Strings namespace="local">
+        <Language lang="en">
+            <String identifier="ModelName">{{model_name}}</String>
+            <String identifier="DeviceDescription">{{device_description}}</String>
+            <String identifier="VendorName">{{vendor_name}}</String>
+            <String identifier="typename">{{type_name}}</String>
+            <String identifier="typedescription">{{type_description}}</String>
+        </Language>
+    </Strings>
+    <Device hideInCatalogue="false">
+        <DeviceIdentification>
+            <Type>{{device_type}}</Type>
+            <Id>{{device_id}}</Id>
+            <Version>{{device_version}}</Version>
+        </DeviceIdentification>
+        <DeviceInfo>
+            <Name name="local:ModelName">{{model_name}}</Name>
+            <Description name="local:DeviceDescription">{{device_description}}</Description>
+            <Vendor name="local:VendorName">{{vendor_name}}</Vendor>
+            <OrderNumber>{{order_number}}</OrderNumber>
+        </DeviceInfo>
+        <Connector moduleType="257" interface="Common.PCI" role="child" explicit="false"
+            connectorId="1" hostpath="-1" hideInStatusPage="true">
+            <InterfaceName name="local:PCI">PCI-Bus</InterfaceName>
+            <Slot count="1" allowEmpty="false"></Slot>
+        </Connector>
+        <Connector moduleType="50000" interface="UnixDomainSocket" role="parent" explicit="false"
+            connectorId="2" hostpath="1">
+            <InterfaceName name="local:DP">Internal</InterfaceName>
+            <Var max="125"></Var>
+            <!--
+				Here we define the input and output parameters. These I/O channels appear in the mapping dialog
+            when the device is added to a PLC.
+				The I/O values are transferred by the driver via unix domain sockets to the corresponding receiver
+            (see "uds_io_driver.py" as an example).
+			-->
+            <HostParameterSet>{{io_interfaces}}
+            </HostParameterSet>
+            <DriverInfo needsBusCycle="true">
+                <RequiredLib libname="IoDrvSocketUnix" placeholderlib="IoDrvSocketUnix"
+                    vendor="CODESYS" version="*" identifier="IoDrvSocketUnix">
+                    <FBInstance basename="$(DeviceName)" fbname="IoDrvSocketUnix">
+                        <Initialize methodName="Initialize" />
+                    </FBInstance>
+                </RequiredLib>
+                <Scan supported="true" />
+            </DriverInfo>
+        </Connector>
+        <ExtendedSettings>
+            <ts:TargetSettings>
+                <ts:section name="library-management">
+                    <ts:section name="placeholder-libraries">
+                        <ts:setting name="IoDrvSocketUnix" type="string" access="visible">
+                            <ts:value>IoDrvSocketUnix, 4.10.0.0 (CODESYS)</ts:value>
+                        </ts:setting>
+                    </ts:section>
+                </ts:section>
+            </ts:TargetSettings>
+        </ExtendedSettings>
+        <CompatibleVersions>
+            <Version>4.3.*.*</Version>
+        </CompatibleVersions>
+    </Device>
+</DeviceDescription>

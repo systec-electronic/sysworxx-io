@@ -1,0 +1,13 @@
+[Unit]
+Description=sysWORXX I/O Daemon
+Before=openpcs-z5.service node-red.service
+
+[Service]
+ExecStartPre=sleep 10
+ExecStart=/usr/bin/iodaemon
+CPUSchedulingPolicy=rr
+CPUSchedulingPriority=20
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

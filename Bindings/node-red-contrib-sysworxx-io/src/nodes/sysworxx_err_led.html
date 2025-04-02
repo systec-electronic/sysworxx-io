@@ -1,0 +1,156 @@
+<!-- SPDX-License-Identifier: LGPL-3.0-or-later -->
+<!--
+    (c) SYSTEC electronic AG, D-08468 Heinsdorfergrund, Am Windrad 2
+        www.systec-electronic.com
+-->
+
+<script type="text/html" data-template-name="Error LED">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-interfaces"></label>
+        <input type="hidden" id="node-input-interfaces">
+    </div>
+
+    <div class="form-row" id="id-node-div-row-input-initialState">
+        <label for="node-input-initialState"><i class="fa fa-check-square-o"></i> Init State</label>
+        <select type="text" id="node-input-initialState" size="1">
+            <option value="initStateActive">Active</option>
+            <option value="initStateInactive">Inactive</option>
+        </select>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-dataHigh"><i class="fa fa-arrow-up"></i> Active</label>
+        <input type="text" id="node-input-dataHigh" style="width: 70%">
+        <input type="hidden" id="node-input-typeHigh">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-dataLow"><i class="fa fa-arrow-down"></i> Inactive</label>
+        <input type="text" id="node-input-dataLow" style="width: 70%">
+        <input type="hidden" id="node-input-typeLow">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-optAltTopic"><i class="fa fa-envelope-o"></i></label>
+        <input type="checkbox" id="node-input-optAltTopic" style="width: auto; vertical-align: top;"
+            onclick="checkErrOptionalTopic()">
+        <label style="width: 150px;"> Use alternative topic</label>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-topic"></label>
+        <input type="text" id="node-input-topic" disabled="disabled">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="Error LED">
+    <p>This nodes changes the Error LED on a sysWORXX device</p>
+    <h3>Input</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">boolean</span></dt>
+        <dd>The payload changes the output to either high (true) or low (false).</dd>
+    </dl>
+</script>
+
+<script language="javascript">
+    RED.nodes.registerType('Error LED', {
+        category: 'sysWORXX-IO',
+        color: '#00bfff',
+        defaults: {
+            name: {value: ""},
+            initialState: {value: "initStateInactive"},
+            typeHigh: {value: "num"},
+            typeLow: {value: "num"},
+            dataHigh: {value: 1, required: true, validate: (RED.validators.hasOwnProperty('typedInput') ? RED.validators.typedInput('typeHigh') : function (v) {return true})},
+            dataLow: {value: 0, required: true, validate: (RED.validators.hasOwnProperty('typedInput') ? RED.validators.typedInput('typeLow') : function (v) {return true})},
+            savedOuput: {value: ""},
+            optAltTopic: {value: false},
+            topic: {value: "sysworxx/led/err"},
+        },
+        inputs: 1,
+        outputs: 0,
+        icon: "light.svg",
+        label: function () {
+            return this.name || "Error LED";
+        },
+        labelStyle: function () {
+            return this.name ? "node_label_italic" : "";
+        },
+
+        oneditprepare: function () {
+            checkErrOptionalTopic();
+
+            $('#node-input-dataHigh').typedInput({
+                typeField: $("#node-input-typeHigh"),
+                types: [
+                    {
+                        value: "bool",
+                        label: "boolean",
+                        icon: "red/images/typedInput/bool.svg",
+                        options: ["true", "false"]
+                    },
+                    {
+                        value: "num",
+                        label: "number",
+                        icon: "red/images/typedInput/09.svg",
+                        validate: /^[+-]?[0-9]*\.?[0-9]*([eE][-+]?[0-9]+)?$/
+                    },
+                    {
+                        value: "str",
+                        label: "string",
+                        icon: "red/images/typedInput/az.svg"
+                    }
+                ]
+            });
+
+            $('#node-input-dataLow').typedInput({
+                typeField: $("#node-input-typeLow"),
+                types: [
+                    {
+                        value: "bool",
+                        label: "boolean",
+                        icon: "red/images/typedInput/bool.svg",
+                        options: ["false", "true"]
+                    },
+                    {
+                        value: "num",
+                        label: "number",
+                        icon: "red/images/typedInput/09.svg",
+                        validate: /^[+-]?[0-9]*\.?[0-9]*([eE][-+]?[0-9]+)?$/
+                    },
+                    {
+                        value: "str",
+                        label: "string",
+                        icon: "red/images/typedInput/az.svg"
+                    }
+                ]
+            });
+        },
+
+        oneditsave: function () {
+            const checked = document.getElementById("node-input-optAltTopic").checked;
+            if (checked) {
+                newTopic = document.getElementById("node-input-topic").value;
+                if (newTopic.length == 0) {
+                    RED.notify(RED._("notification.warning", {message: "Alternative Topic is selected but not specified."}), "warning");
+                }
+            }
+        }
+    });
+
+    function checkErrOptionalTopic() {
+        const checked = document.getElementById("node-input-optAltTopic").checked;
+        let topic = "sysworxx/led/err";
+        document.getElementById("node-input-topic").disabled = !checked;
+
+        if (!checked) {
+            topic = "#";
+        }
+        document.getElementById("node-input-topic").value = topic.toLowerCase();
+    }
+</script>
