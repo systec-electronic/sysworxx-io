@@ -3,8 +3,6 @@
 // (c) SYSTEC electronic AG, D-08468 Heinsdorfergrund, Am Windrad 2
 //     www.systec-electronic.com
 
-#![allow(non_snake_case)]
-
 // This is a copy of ffi.rs from sysworxx-io without any code.
 // It is the declaration of the exported functions of libsysworxx-io.so.
 
@@ -50,6 +48,7 @@ pub enum IoResult {
 /// revision information as well as the channel counts for the different
 /// peripherals.
 #[repr(C)]
+#[allow(non_snake_case)]
 #[derive(Default, Debug)]
 pub struct IoHwInfo {
     /// The PCB revision number
