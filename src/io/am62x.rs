@@ -65,7 +65,6 @@ impl IoChannel for Counter {
 
 impl CounterInput for Counter {
     fn enable(&mut self, state: bool) -> Result<()> {
-        println!("Setup counter");
         let path_enable = format!("{}/enable", self.path);
 
         if state {
