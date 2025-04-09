@@ -201,7 +201,7 @@ pub fn definition() -> Io {
 }
 
 pub fn definition_shm() -> (Io, shm::Mappings) {
-    let adc_calib = Ini::load_from_file("/vendor/adc_calib").unwrap_or_default();
+    let adc_calib = Ini::load_from_file("/boot/vendor/adc_calib").unwrap_or_default();
     let shifter = util::Shifter::new(util::Shift::Up(3));
     let adc_sampler: iio::Sampler<i64> =
         iio::Sampler::new("iio:device0", Duration::from_millis(100));
