@@ -193,6 +193,7 @@ pub fn definition() -> Io {
             Box::new(evdev::Di::new(&mut digi_inputs, evdev::KeyCode::KEY_F15)),
         ))],
         relay_offset: Some(16),
+        // maximum PWM period is 469754879ns (~469ms)
         pwm_outputs: vec![
             Box::new(sysfs::Pwm::new(0, 0)), // chip, channel
             Box::new(sysfs::Pwm::new(2, 0)), // chip, channel
