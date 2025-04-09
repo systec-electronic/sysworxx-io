@@ -102,6 +102,14 @@ impl CounterInput for Counter {
         trigger: ffi::IoCntTrigger,
         dir: ffi::IoCntDirection,
     ) -> Result<()> {
+        // not supported by the peripheral / the Kernel driver
+        if matches!(
+            trigger,
+            ffi::IoCntTrigger::FallingEdge | ffi::IoCntTrigger::RisingEdge
+        ) {
+            return Err(Error::NotImplemented);
+        }
+
         self.function = mode;
         self.trigger = trigger;
         self.dir = dir;
