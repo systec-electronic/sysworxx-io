@@ -7,6 +7,10 @@
     - [Generate C headers](#generate-c-headers)
   - [Install cbindgen](#install-cbindgen)
   - [Generate C-API header](#generate-c-api-header)
+  - [Language Bingings](#language-bingings)
+    - [C\#](#c)
+  - [Running CODESYS connector](#running-codesys-connector)
+    - [Device setup](#device-setup)
 <!--toc:end-->
 
 # sysworxx-io
@@ -71,6 +75,23 @@ cargo install cbindgen
 ~~~sh
 cbindgen --config cbindgen.toml --output <DESTINATION_PATH>/sysworxx_io.h
 ~~~
+
+## Language Bingings
+
+### C\#
+
+Example applications can be build with following commands:
+
+```sh
+cd ./Bindings/CSharp/Demo
+dotnet publish -r linux-arm64 --self-contained --configuration Release
+# deploy binaries to the target, e.g.
+scp -r bin/Release/net8.0/linux-arm64/publish root@sysworxx:/tmp
+```
+
+On the target device the executable will be located in `/tmp/publish/Demo`.
+
+For `Runlight` example use analogous commands.
 
 ## Running CODESYS connector
 
