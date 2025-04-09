@@ -9,7 +9,13 @@ description = "I/O library for accessing basic peripherals (digital/analog I/O's
 resolver = "2"
 
 [workspace]
-members = ["ctr700drv", "Bindings/sysworxx-io-js", "Bindings/Codesys"]
+members = [
+    # ".",
+    "ctr700drv",
+    "Bindings/sysworxx-io-js",
+    "Bindings/Codesys",
+    "Bindings/CSharp/SysworxxIoCsbindgen",
+]
 
 [lib]
 crate-type = ["rlib", "staticlib", "cdylib"]
