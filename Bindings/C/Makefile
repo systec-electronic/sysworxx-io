@@ -1,18 +1,7 @@
-#***************************************************************************#
-#                                                                           #
-#  (c) SYSTEC electronic AG, D-08468 Heinsdorfergrund, Am Windrad 2       #
-#  www.systec-electronic.com                                                #
-#                                                                           #
-#  File:         Makefile                                                   #
-#  Description:  Makefile for CTR-700 Demo Application                      #
-#                                                                           #
-#  -----------------------------------------------------------------------  #
-#                                                                           #
-#  Revision History:                                                        #
-#                                                                           #
-#  2018/03/22 -ad:   Initial Version                                        #
-#                                                                           #
-#****************************************************************************
+# SPDX-License-Identifier: LGPL-3.0-or-later
+# SPDX-FileCopyrightText: 2025 SYS TEC electronic AG <https://www.systec-electronic.com/>
+#
+# Makefile for CTR-700 Demo Application
 
 # --------- Project Settings ---------
 

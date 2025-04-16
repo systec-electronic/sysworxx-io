@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-//
-// (c) SYSTEC electronic AG, D-08468 Heinsdorfergrund, Am Windrad 2
-//     www.systec-electronic.com
+// SPDX-FileCopyrightText: 2025 SYS TEC electronic AG <https://www.systec-electronic.com/>
 
 import { NodeInitializer } from 'node-red';
 import { SysworxxInterfaces, NodeRedMsg, NodeConfig, ADC_STATE, ADC_MODE, SAMPLE_UNIT, DECIMAL_PLACES } from '../types/interfaces';
