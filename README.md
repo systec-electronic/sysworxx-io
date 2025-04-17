@@ -29,7 +29,7 @@ This workspace contains:
 - Install *libiio* and *libsensor* for native build (compile test)
 - Install `cargo deb` to build Debian package
 - C# Bindings: .Net core SDK
-- Node.js Bindings: Node.js and npm
+- Node.js Bindings: Node.js (>=20) and npm
 
 ## libsysworxx-io
 
