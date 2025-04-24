@@ -131,6 +131,22 @@ enum IoInputTrigger
 typedef uint8_t IoInputTrigger;
 #endif // __cplusplus
 
+/**
+ * @brief PWM timebase for period and duty cycle setting.
+ */
+enum IoPwmTimebase
+#ifdef __cplusplus
+  : uint8_t
+#endif // __cplusplus
+
+{
+    IoPwmTimebase_Ns800 = 1,
+    IoPwmTimebase_Ms1 = 2,
+};
+#ifndef __cplusplus
+typedef uint8_t IoPwmTimebase;
+#endif // __cplusplus
+
 enum IoResult
 #ifdef __cplusplus
   : uint32_t
@@ -238,7 +254,7 @@ typedef uint8_t IoTmpSensorType;
 /**
  * @brief Hardware information structure
  *
- * This structure will be filled by #Ctr700DrvGetHardwareInfo. It contains the
+ * This structure will be filled by IoGetHardwareInfo. It contains the
  * revision information as well as the channel counts for the different
  * peripherals.
  */
@@ -280,6 +296,22 @@ struct IoHwInfo
      * Number of PWM channels
      */
     uint8_t m_uPwmChannels;
+    /**
+     * Number of real digital inputs (legacy)
+     */
+    uint8_t m_uLegacyDiChannels;
+    /**
+     * Number of real digital outputs (legacy)
+     */
+    uint8_t m_uLegacyDoChannels;
+    /**
+     * Number of relay outputs (legacy)
+     */
+    uint8_t m_uLegacyRelayChannels;
+    /**
+     * Offset of relay outputs in DO channels (legacy)
+     */
+    uint8_t m_uLegacyRelayOffset;
 };
 
 /**
@@ -313,6 +345,11 @@ IoResult IoShutdown(void);
  * @param puMajor_p Pointer to the resulting major part of the version number
  * @param puMinor_p Pointer to the resulting minor part of the version number
  * @return IoResult Driver result code of type IoResult
+ *
+ * # Safety
+ *
+ * `puMajor_p` must be a valid pointer
+ * `puMinor_p` must be a valid pointer
  */
 IoResult IoGetVersion(uint8_t *puMajor_p, uint8_t *puMinor_p);
 
@@ -324,6 +361,10 @@ IoResult IoGetVersion(uint8_t *puMajor_p, uint8_t *puMinor_p);
  *
  * @param puTickCount_p Pointer to the resulting timestamp value
  * @return IoResult Driver result code of type IoResult
+ *
+ * # Safety
+ *
+ * `puTickCount_p` must be a valid pointer
  */
 IoResult IoGetTickCount(uint32_t *puTickCount_p);
 
@@ -332,7 +373,7 @@ IoResult IoGetTickCount(uint32_t *puTickCount_p);
  *
  * @param fMonitorOnly_p Enable monitoring only mode. If the watchdog was not
  *        serviced in time, an error will be reported by the return value of
- *        Ctr700DrvServiceWatchdog().
+ *        IoServiceWatchdog().
  *
  * @return IoResult Driver result code of type IoResult
  */
@@ -350,6 +391,10 @@ IoResult IoServiceWatchdog(void);
  *
  * @param pHwInfo_p Destination structure with the resulting information
  * @return IoResult Driver result code of type IoResult
+ *
+ * # Safety
+ *
+ * `pHwInfo_p` must point be a valid pointer
  */
 IoResult IoGetHardwareInfo(struct IoHwInfo *pHwInfo_p);
 
@@ -370,17 +415,26 @@ IoResult IoSetRunLed(IoBool fState_p);
 IoResult IoSetErrLed(IoBool fState_p);
 
 /**
- *  @brief Get device interface information
- *  @param sPath_p Path to file
- *  @return IoResult Driver result code of type IoResult
+ * @brief Get device interface information
+ *
+ * @param sPath_p Path to file
+ * @return IoResult Driver result code of type IoResult
+ *
+ * # Safety
+ *
+ * `sPath_p` must be a valid pointer
  */
-IoResult IoGetJson(const char * sPath_p);
+IoResult IoGetJson(const char *sPath_p);
 
 /**
  * @brief Get value of the RUN switch
  *
  * @param pfRunSwitch_p Pointer to the value destination
  * @return IoResult Driver result code of type IoResult
+ *
+ * # Safety
+ *
+ * `pfRunSwitch_p` must be a valid pointer
  */
 IoResult IoGetRunSwitch(IoBool *pfRunSwitch_p);
 
@@ -389,6 +443,10 @@ IoResult IoGetRunSwitch(IoBool *pfRunSwitch_p);
  *
  * @param pfConfig_p Pointer to the value destination
  * @return IoResult Driver result code of type IoResult
+ *
+ * # Safety
+ *
+ * `pfConfig_p` must be a valid pointer
  */
 IoResult IoGetConfigEnabled(IoBool *pfConfig_p);
 
@@ -407,6 +465,10 @@ IoResult IoSetOutput(uint8_t uChannel_p, IoBool fEnable_p);
  * @param uChannel_p The channel of the digital input
  * @param pfState_p Pointer to the state destination
  * @return IoResult Driver result code of type IoResult
+ *
+ * # Safety
+ *
+ * `pfState_p` must be a valid pointer
  */
 IoResult IoGetInput(uint8_t uChannel_p, IoBool *pfState_p);
 
@@ -436,6 +498,10 @@ IoResult IoUnregisterInputCallback(uint8_t uChannel_p);
  * @param uChannel_p The channel to get
  * @param puAdcValue_p Pointer to the value destination
  * @return IoResult Driver result code of type IoResult
+ *
+ * # Safety
+ *
+ * `puAdcValue_p` must be a valid pointer
  */
 IoResult IoAdcGetValue(uint8_t uChannel_p, uint16_t *puAdcValue_p);
 
@@ -481,6 +547,10 @@ IoResult IoTmpSetMode(uint8_t uChannel_p,
  * @param uChannel_p The temperature sensor channel
  * @param piValue_p Pointer to the value destination in 1/10000 °C
  * @return IoResult Driver result code of type IoResult
+ *
+ * # Safety
+ *
+ * `piValue_p` must be a valid pointer
  */
 IoResult IoTmpGetValue(uint8_t uChannel_p, int32_t *piValue_p);
 
@@ -522,11 +592,43 @@ IoResult IoCntSetPreload(uint8_t uChannel_p, int32_t iPreload_p);
  * @param uChannel_p The channel to get the value for
  * @param piValue_p Pointer to the value destination
  * @return IoResult Driver result code of type IoResult
+ *
+ * # Safety
+ *
+ * `piValue_p` must be a valid pointer
  */
 IoResult IoCntGetValue(uint8_t uChannel_p, int32_t *piValue_p);
 
-#ifdef __cplusplus
-} // extern "C"
-#endif // __cplusplus
+/**
+ * @brief Enable PWM output
+ *
+ * @param uChannel_p The channel of the digital output
+ * @param fRun_p The value to set
+ * @return IoResult Driver result code of type IoResult
+ */
+IoResult IoPwmEnable(uint8_t uChannel_p, bool fRun_p);
 
-#endif /* _SYSWORXX_IO_H_ */
+/**
+ * @brief Setup an PWM channel
+ *
+ * @param uChannel_p The channel to setup
+ * @param period The periode of the PWM
+ * @param duty_cycle The duty cycle of the PWM
+ * @return IoResult Driver result code of type IoResult
+ */
+IoResult IoPwmSetup(uint8_t uChannel_p, uint16_t period, uint16_t duty_cycle);
+
+/**
+ * @brief Set the timebase for PWM output
+ *
+ * @param uChannel_p The channel to get the value for
+ * @param timebase Timebase enum
+ * @return IoResult Driver result code of type IoResult
+ */
+IoResult IoPwmSetTimebase(uint8_t uChannel_p, IoPwmTimebase timebase);
+
+#ifdef __cplusplus
+}  // extern "C"
+#endif  // __cplusplus
+
+#endif  /* _SYSWORXX_IO_H_ */
