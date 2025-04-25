@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-//
-// (c) SYSTEC electronic AG, D-08468 Heinsdorfergrund, Am Windrad 2
-//     www.systec-electronic.com
+// SPDX-FileCopyrightText: 2025 SYS TEC electronic AG <https://www.systec-electronic.com/>
 
 /// Checks a single pointer, if it is null. If so the second expression will be evaluated and
 /// returned.

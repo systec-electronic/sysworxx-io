@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-//
-// (c) SYSTEC electronic AG, D-08468 Heinsdorfergrund, Am Windrad 2
-//     www.systec-electronic.com
+// SPDX-FileCopyrightText: 2025 SYS TEC electronic AG <https://www.systec-electronic.com/>
 
 use std::time::Duration;
 
@@ -193,6 +191,7 @@ pub fn definition() -> Io {
             Box::new(evdev::Di::new(&mut digi_inputs, evdev::KeyCode::KEY_F15)),
         ))],
         relay_offset: Some(16),
+        // maximum PWM period is 469754879ns (~469ms)
         pwm_outputs: vec![
             Box::new(sysfs::Pwm::new(0, 0)), // chip, channel
             Box::new(sysfs::Pwm::new(2, 0)), // chip, channel
@@ -201,7 +200,7 @@ pub fn definition() -> Io {
 }
 
 pub fn definition_shm() -> (Io, shm::Mappings) {
-    let adc_calib = Ini::load_from_file("/vendor/adc_calib").unwrap_or_default();
+    let adc_calib = Ini::load_from_file("/boot/vendor/adc_calib").unwrap_or_default();
     let shifter = util::Shifter::new(util::Shift::Up(3));
     let adc_sampler: iio::Sampler<i64> =
         iio::Sampler::new("iio:device0", Duration::from_millis(100));

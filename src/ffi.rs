@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-//
-// (c) SYSTEC electronic AG, D-08468 Heinsdorfergrund, Am Windrad 2
-//     www.systec-electronic.com
+// SPDX-FileCopyrightText: 2025 SYS TEC electronic AG <https://www.systec-electronic.com/>
 
 #![allow(non_snake_case)]
 
@@ -587,7 +585,7 @@ pub unsafe extern "C" fn IoAdcGetValue(uChannel_p: u8, puAdcValue_p: *mut u16) -
 
         io_do! {
             io,
-            io.analog_input_get(uChannel_p as usize).map(|v| unsafe { *puAdcValue_p = v as u16; })
+            io.analog_input_get(uChannel_p as usize).map(|v| unsafe { *puAdcValue_p = v.max(0) as u16; })
         }
     }}
 }

@@ -3,6 +3,13 @@
 version = 3
 
 [[package]]
+name = "SysworxxIoCsbindgen"
+version = "2.2.0"
+dependencies = [
+ "csbindgen",
+]
+
+[[package]]
 name = "addr2line"
 version = "0.24.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -285,7 +292,7 @@ dependencies = [
 
 [[package]]
 name = "codesys-connector"
-version = "0.5.0"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "askama",
@@ -383,6 +390,16 @@ name = "crossbeam-utils"
 version = "0.8.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d0a5c400df2834b80a4c3327b3aad3a4c4cd4de0629063962b03235697506a28"
+
+[[package]]
+name = "csbindgen"
+version = "1.9.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c26b9831049b947d154bba920e4124053def72447be6fb106a96f483874b482a"
+dependencies = [
+ "regex",
+ "syn 2.0.98",
+]
 
 [[package]]
 name = "csv"
@@ -1031,7 +1048,7 @@ dependencies = [
  "cfg-if 0.1.10",
  "libc",
  "nix 0.29.0",
- "rand 0.7.3",
+ "rand 0.8.5",
  "winapi",
 ]
 
@@ -1284,7 +1301,7 @@ dependencies = [
 
 [[package]]
 name = "sysworxx-io"
-version = "2.1.0"
+version = "2.2.0"
 dependencies = [
  "criterion",
  "crossbeam-channel",
@@ -1310,10 +1327,11 @@ dependencies = [
 
 [[package]]
 name = "sysworxx-io-js"
-version = "0.1.0"
+version = "2.2.0"
 dependencies = [
  "lazy_static",
  "neon",
+ "sysworxx-io",
 ]
 
 [[package]]

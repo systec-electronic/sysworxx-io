@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-//
-// (c) SYSTEC electronic AG, D-08468 Heinsdorfergrund, Am Windrad 2
-//     www.systec-electronic.com
+// SPDX-FileCopyrightText: 2025 SYS TEC electronic AG <https://www.systec-electronic.com/>
 
 use std::fs;
 use std::path;
@@ -65,7 +63,6 @@ impl IoChannel for Counter {
 
 impl CounterInput for Counter {
     fn enable(&mut self, state: bool) -> Result<()> {
-        println!("Setup counter");
         let path_enable = format!("{}/enable", self.path);
 
         if state {
@@ -103,6 +100,14 @@ impl CounterInput for Counter {
         trigger: ffi::IoCntTrigger,
         dir: ffi::IoCntDirection,
     ) -> Result<()> {
+        // not supported by the peripheral / the Kernel driver
+        if matches!(
+            trigger,
+            ffi::IoCntTrigger::FallingEdge | ffi::IoCntTrigger::RisingEdge
+        ) {
+            return Err(Error::NotImplemented);
+        }
+
         self.function = mode;
         self.trigger = trigger;
         self.dir = dir;

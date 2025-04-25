@@ -1,6 +1,6 @@
 [package]
 name = "sysworxx-io-js"
-version = "0.1.0"
+version = "2.2.0"
 license = "LGPL-3.0-or-later"
 edition = "2018"
 exclude = ["index.node"]
@@ -17,3 +17,8 @@ lazy_static = "1.4.0"
 version = "0.10"
 default-features = false
 features = ["napi-4", "channel-api"]
+
+[build-dependencies]
+# HACK: ensure that libsysworxx_io.so is build before this one since this links
+# against it links against it.
+sysworxx-io = { path = "../.." }

@@ -2,9 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # SPDX-License-Identifier: LGPL-3.0-or-later
-#
-# (c) SYSTEC electronic AG, D-08468 Heinsdorfergrund, Am Windrad 2
-#     www.systec-electronic.com
+# SPDX-FileCopyrightText: 2025 SYS TEC electronic AG <https://www.systec-electronic.com/>
 
 """
 Project:      SYSTEC sysWORXX CTR-700
@@ -17,8 +15,8 @@ import time
 from ctr700drv import Ctr700Drv
 
 # version information
-APP_VER_MAIN = 2    # version 1.xx
-APP_VER_REL = 0     # version x.00
+APP_VER_MAIN = 2  # version 1.xx
+APP_VER_REL = 0  # version x.00
 
 
 class Modes(object):
@@ -48,34 +46,33 @@ class Runlight(object):
 
         print("*" * 79)
         print("I/O Driver version: {}.{}".format(major, minor))
-        print("  PCB Revision:     {}".format(hwinfo['PcbRevision']))
+        print("  PCB Revision:     {}".format(hwinfo["PcbRevision"]))
         print("  IO configuration:")
-        print("    Digital In:  {}".format(hwinfo['DiChannels']))
-        print("    Digital Out: {}".format(hwinfo['DoChannels']))
-        print("    Relay:       {}".format(hwinfo['RelayChannels']))
-        print("    Analog In:   {}".format(hwinfo['AiChannels']))
-        print("    Analog Out:  {}".format(hwinfo['AoChannels']))
-        print("    Counter:     {}".format(hwinfo['CntChannels']))
-        print("    A/B Encoder: {}".format(hwinfo['EncChannels']))
-        print("    PWM/PTO:     {}".format(hwinfo['PwmChannels']))
-        print("    TempSensor:  {}".format(hwinfo['TmpChannels']))
+        print("    Digital In:  {}".format(hwinfo["DiChannels"]))
+        print("    Digital Out: {}".format(hwinfo["DoChannels"]))
+        print("    Relay:       {}".format(hwinfo["RelayChannels"]))
+        print("    Analog In:   {}".format(hwinfo["AiChannels"]))
+        print("    Analog Out:  {}".format(hwinfo["AoChannels"]))
+        print("    Counter:     {}".format(hwinfo["CntChannels"]))
+        print("    A/B Encoder: {}".format(hwinfo["EncChannels"]))
+        print("    PWM/PTO:     {}".format(hwinfo["PwmChannels"]))
+        print("    TempSensor:  {}".format(hwinfo["TmpChannels"]))
         print("*" * 79)
         print("")
 
         for channel in range(3):
             print("Register DI interrupt for channel {}".format(channel))
-            self.ctr700.register_interrupt(channel, True, False,
-                                           self.on_digital_input)
+            self.ctr700.register_interrupt(channel, True, False, self.on_digital_input)
 
         signal.signal(signal.SIGINT, self.on_sigint)
 
         return self
 
-    def __exit__(self, type, value, traceback): #pylint: disable=redefined-builtin
+    def __exit__(self, type, value, traceback):  # pylint: disable=redefined-builtin
         self.ctr700.set_run_led(False)
         self.ctr700.set_err_led(False)
 
-        for channel in range(self.hwinfo['DoChannels']):
+        for channel in range(self.hwinfo["DoChannels"]):
             self.ctr700.set_digi_out(channel, False)
 
         self.ctr700.shutdown()
@@ -106,29 +103,27 @@ class Runlight(object):
                 self.ctr700.set_err_led(True)
 
             if self.mode == Modes.LEFT:
-                output_mask = (output_mask >> 1 | output_mask << (16 - 1)) \
-                                & 0xffff
+                output_mask = (output_mask >> 1 | output_mask << (16 - 1)) & 0xFFFF
             elif self.mode == Modes.RIGHT:
-                output_mask = (output_mask << 1 | output_mask >> (16 - 1)) \
-                                & 0xffff
+                output_mask = (output_mask << 1 | output_mask >> (16 - 1)) & 0xFFFF
             else:
                 pass
 
-            for channel in range(self.hwinfo['DoChannels']):
+            for channel in range(self.hwinfo["DoChannels"]):
                 self.ctr700.set_digi_out(channel, output_mask & (1 << channel))
 
             def calc_delay(value):
-                adc_min = 0        # 0 V
-                adc_max = 28151    # 10 V
+                adc_min = 0  # 0 V
+                adc_max = 28151  # 10 V
                 delay_min = 0.500  # 500 ms
                 delay_max = 0.025  # 25 ms
 
                 # y = mx + n
-                #pylint: disable=invalid-name
+                # pylint: disable=invalid-name
                 m = (delay_max - delay_min) / (adc_max - adc_min)
                 n = delay_min
                 x = value - adc_min
-                #pylint: enable=invalid-name
+                # pylint: enable=invalid-name
 
                 return (m * x) + n
 

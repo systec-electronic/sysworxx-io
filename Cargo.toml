@@ -1,6 +1,6 @@
 [package]
 name = "sysworxx-io"
-version = "2.1.0"
+version = "2.2.0"
 authors = ["Andreas Dinter"]
 edition = "2018"
 license = "LGPL-3.0-or-later"
@@ -9,7 +9,13 @@ description = "I/O library for accessing basic peripherals (digital/analog I/O's
 resolver = "2"
 
 [workspace]
-members = ["ctr700drv", "Bindings/sysworxx-io-js", "Bindings/Codesys"]
+members = [
+    # ".",
+    "ctr700drv",
+    "Bindings/sysworxx-io-js",
+    "Bindings/Codesys",
+    "Bindings/CSharp/SysworxxIoCsbindgen",
+]
 
 [lib]
 crate-type = ["rlib", "staticlib", "cdylib"]
@@ -73,11 +79,6 @@ assets = [
     ],
     [
         "include/sysworxx_io.h",
-        "/usr/include/arm-linux-gnueabihf/",
-        "644",
-    ],
-    [
-        "include/sysworxx_io_conly.h",
         "/usr/include/arm-linux-gnueabihf/",
         "644",
     ],

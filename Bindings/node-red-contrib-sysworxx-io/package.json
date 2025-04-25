@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-sysworxx-io",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Node-RED nodes for the SYS TEC electronic AG sysWORXX series",
   "scripts": {
     "build": "tsc",
@@ -28,7 +28,7 @@
     "@typescript-eslint/parser": "^5.52.0",
     "copyfiles": "^2.4.1",
     "eslint": "^8.34.0",
-    "node-red": "^3.0.2",
-    "typescript": "^3.9.10"
+    "node-red": "^4.0.8",
+    "typescript": "^5.7.3"
   }
 }

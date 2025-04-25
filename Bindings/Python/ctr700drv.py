@@ -2,9 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # SPDX-License-Identifier: LGPL-3.0-or-later
-#
-# (c) SYSTEC electronic AG, D-08468 Heinsdorfergrund, Am Windrad 2
-#     www.systec-electronic.com
+# SPDX-FileCopyrightText: 2025 SYS TEC electronic AG <https://www.systec-electronic.com/>
 
 """
 Project:      SYSTEC sysWORXX CTR-700
@@ -13,9 +11,9 @@ Description:  Python driver demo application
 
 from cffi import FFI
 
-
 _ffibuilder = FFI()
-_ffibuilder.cdef("""
+_ffibuilder.cdef(
+    """
     // Return codes
     typedef enum
     {
@@ -204,32 +202,32 @@ _ffibuilder.cdef("""
             uint32_t                    uInterruptTrigger_p);
     int32_t Ctr700DrvUnregisterInterruptCallback (
             uint8_t                     uChannel_p);
-""")
+"""
+)
 
 _ffi = _ffibuilder.dlopen("ctr700drv")
 
 
 class Ctr700Exception(Exception):
     error_messages = {
-            _ffi.kCtr700DrvResult_Error:              "Generic error",
-            _ffi.kCtr700DrvResult_NotImplemented:     "Not implemented",
-            _ffi.kCtr700DrvResult_InvalidParameter:   "Invalid parameter",
-            _ffi.kCtr700DrvResult_InvalidChannel:     "Invalid channel",
-            _ffi.kCtr700DrvResult_InvalidMode:        "Invalid mode",
-            _ffi.kCtr700DrvResult_InvalidTimebase:    "Invalid timebase",
-            _ffi.kCtr700DrvResult_InvalidDelta:       "Invalid delta",
-            _ffi.kCtr700DrvResult_PtoParamTabFull:    "PTO tab is is completely filled",
-            _ffi.kCtr700DrvResult_DevAccessFailed:    "Access to device failed",
-            _ffi.kCtr700DrvResult_InvalidProcImgCfg:  "Process image configuration invalid",
-            _ffi.kCtr700DrvResult_ProcImgCfgUnknown:  "Process image configuration unknown",
-            _ffi.kCtr700DrvResult_ShpImgError:        "Shared process image error",
-            _ffi.kCtr700DrvResult_AddressOutOfRange:  "Address out of range",
-            _ffi.kCtr700DrvResult_WatchdogTimeout:    "Watchdog timeout",
+        _ffi.kCtr700DrvResult_Error: "Generic error",
+        _ffi.kCtr700DrvResult_NotImplemented: "Not implemented",
+        _ffi.kCtr700DrvResult_InvalidParameter: "Invalid parameter",
+        _ffi.kCtr700DrvResult_InvalidChannel: "Invalid channel",
+        _ffi.kCtr700DrvResult_InvalidMode: "Invalid mode",
+        _ffi.kCtr700DrvResult_InvalidTimebase: "Invalid timebase",
+        _ffi.kCtr700DrvResult_InvalidDelta: "Invalid delta",
+        _ffi.kCtr700DrvResult_PtoParamTabFull: "PTO tab is is completely filled",
+        _ffi.kCtr700DrvResult_DevAccessFailed: "Access to device failed",
+        _ffi.kCtr700DrvResult_InvalidProcImgCfg: "Process image configuration invalid",
+        _ffi.kCtr700DrvResult_ProcImgCfgUnknown: "Process image configuration unknown",
+        _ffi.kCtr700DrvResult_ShpImgError: "Shared process image error",
+        _ffi.kCtr700DrvResult_AddressOutOfRange: "Address out of range",
+        _ffi.kCtr700DrvResult_WatchdogTimeout: "Watchdog timeout",
     }
 
     def __init__(self, result):
-        msg = Ctr700Exception.error_messages.get(result,
-                                                 "Unknown error code")
+        msg = Ctr700Exception.error_messages.get(result, "Unknown error code")
         msg = "{} (Error code: 0x{:x})".format(msg, result)
         super(Ctr700Exception, self).__init__(msg)
 
@@ -249,6 +247,7 @@ class CounterDirection:
     UP = _ffi.kCtr700DrvCounterDirection_Up
     DOWN = _ffi.kCtr700DrvCounterDirection_Down
 
+
 class DiagInfo(object):
     def __init__(self, info):
         self.DigiOutPowerFail = bool(info.m_fDigiOutPowerFail)
@@ -258,18 +257,25 @@ class DiagInfo(object):
 
     def __repr__(self):
         return "DO_PF: {}, /DO_DIAG: {}, /DI_ERR: {}, /USB_OC: {}".format(
-            self.DigiOutPowerFail, self.DigiOutDiag,
-            self.DigiInError, self.UsbOverCurrent
+            self.DigiOutPowerFail,
+            self.DigiOutDiag,
+            self.DigiInError,
+            self.UsbOverCurrent,
         )
+
 
 class _Singleton(type):
     _instances = {}
+
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
             cls._instances[cls] = super(_Singleton, cls).__call__(*args, **kwargs)
         return cls._instances[cls]
 
-class Singleton(_Singleton('SingletonMeta', (object,), {})): pass
+
+class Singleton(_Singleton("SingletonMeta", (object,), {})):
+    pass
+
 
 class Ctr700Drv(Singleton):
     def __init__(self):
@@ -277,8 +283,8 @@ class Ctr700Drv(Singleton):
         self._instanceCount = 0
 
     def get_version(self):
-        major = _ffibuilder.new('uint8_t*')
-        minor = _ffibuilder.new('uint8_t*')
+        major = _ffibuilder.new("uint8_t*")
+        minor = _ffibuilder.new("uint8_t*")
 
         result = _ffi.Ctr700DrvGetVersion(major, minor)
         self._checkResult(result)
@@ -303,7 +309,7 @@ class Ctr700Drv(Singleton):
             raise RuntimeError("Ctr700Drv has not been initialized")
 
     def get_tick_count(self):
-        tick_count = _ffibuilder.new('uint32_t*')
+        tick_count = _ffibuilder.new("uint32_t*")
 
         result = _ffi.Ctr700DrvGetTickCount(tick_count)
         self._checkResult(result)
@@ -319,21 +325,21 @@ class Ctr700Drv(Singleton):
         self._checkResult(result)
 
     def get_hardware_info(self):
-        hw_info = _ffibuilder.new('tCtr700DrvHwInfo*')
+        hw_info = _ffibuilder.new("tCtr700DrvHwInfo*")
         result = _ffi.Ctr700DrvGetHardwareInfo(hw_info)
         self._checkResult(result)
 
         info = {
-            'PcbRevision': hw_info.m_uPcbRevision,
-            'DiChannels': hw_info.m_uDiChannels,
-            'DoChannels': hw_info.m_uDoChannels,
-            'RelayChannels': hw_info.m_uRelayChannels,
-            'AiChannels': hw_info.m_uAiChannels,
-            'AoChannels': hw_info.m_uAoChannels,
-            'CntChannels': hw_info.m_uCntChannels,
-            'EncChannels': hw_info.m_uEncChannels,
-            'PwmChannels': hw_info.m_uPwmChannels,
-            'TmpChannels': hw_info.m_uTmpChannels
+            "PcbRevision": hw_info.m_uPcbRevision,
+            "DiChannels": hw_info.m_uDiChannels,
+            "DoChannels": hw_info.m_uDoChannels,
+            "RelayChannels": hw_info.m_uRelayChannels,
+            "AiChannels": hw_info.m_uAiChannels,
+            "AoChannels": hw_info.m_uAoChannels,
+            "CntChannels": hw_info.m_uCntChannels,
+            "EncChannels": hw_info.m_uEncChannels,
+            "PwmChannels": hw_info.m_uPwmChannels,
+            "TmpChannels": hw_info.m_uTmpChannels,
         }
 
         return info
@@ -349,31 +355,31 @@ class Ctr700Drv(Singleton):
         self._checkResult(result)
 
     def get_run_switch(self):
-        state = _ffibuilder.new('uint8_t*')
+        state = _ffibuilder.new("uint8_t*")
         result = _ffi.Ctr700DrvGetRunSwitch(state)
         self._checkResult(result)
         return True if int(state[0]) else False
 
     def get_config_enabled(self):
-        state = _ffibuilder.new('uint8_t*')
+        state = _ffibuilder.new("uint8_t*")
         result = _ffi.Ctr700DrvGetConfigEnabled(state)
         self._checkResult(result)
         return True if int(state[0]) else False
 
     def get_power_fail(self):
-        state = _ffibuilder.new('uint8_t*')
+        state = _ffibuilder.new("uint8_t*")
         result = _ffi.Ctr700DrvGetPowerFail(state)
         self._checkResult(result)
         return True if int(state[0]) else False
 
     def get_diag_info(self):
-        info = _ffibuilder.new('tCtr700DrvDiagInfo*')
+        info = _ffibuilder.new("tCtr700DrvDiagInfo*")
         result = _ffi.Ctr700DrvGetDiagInfo(info)
         self._checkResult(result)
         return DiagInfo(info)
 
     def get_ext_fail(self):
-        state = _ffibuilder.new('uint8_t*')
+        state = _ffibuilder.new("uint8_t*")
         result = _ffi.Ctr700DrvGetExtFail(state)
         self._checkResult(result)
         return True if int(state[0]) else False
@@ -384,7 +390,7 @@ class Ctr700Drv(Singleton):
         self._checkResult(result)
 
     def get_digi_in(self, channel):
-        state = _ffibuilder.new('uint8_t*')
+        state = _ffibuilder.new("uint8_t*")
         result = _ffi.Ctr700DrvGetDigiIn(channel, state)
         self._checkResult(result)
         return True if int(state[0]) else False
@@ -416,15 +422,13 @@ class Ctr700Drv(Singleton):
         self._checkResult(result)
 
     def counter_get_value(self, channel):
-        value = _ffibuilder.new('int32_t*')
+        value = _ffibuilder.new("int32_t*")
         result = _ffi.Ctr700DrvCntGetValue(channel, value)
         self._checkResult(result)
         return int(value[0])
 
     def pwm_enable(self, channel, period, pulse_len):
-        result = _ffi.Ctr700DrvPwmSetTimeBase(
-                channel,
-                _ffi.kCtr700DrvPwmTimebase_1MS)
+        result = _ffi.Ctr700DrvPwmSetTimeBase(channel, _ffi.kCtr700DrvPwmTimebase_1MS)
         self._checkResult(result)
 
         result = _ffi.Ctr700DrvPwmSetParam(channel, period, pulse_len)
@@ -438,31 +442,27 @@ class Ctr700Drv(Singleton):
         self._checkResult(result)
 
     def adc_get_value(self, channel):
-        value = _ffibuilder.new('uint16_t*')
+        value = _ffibuilder.new("uint16_t*")
         result = _ffi.Ctr700DrvAdcGetValue(channel, value)
         self._checkResult(result)
         return int(value[0])
 
     def adc_setup_voltage(self, channel):
-        result = _ffi.Ctr700DrvAdcSetMode(
-                channel,
-                _ffi.kCtr700DrvAnalogMode_Voltage)
+        result = _ffi.Ctr700DrvAdcSetMode(channel, _ffi.kCtr700DrvAnalogMode_Voltage)
         self._checkResult(result)
 
     def adc_setup_current(self, channel):
-        result = _ffi.Ctr700DrvAdcSetMode(
-                channel,
-                _ffi.kCtr700DrvAnalogMode_Current)
+        result = _ffi.Ctr700DrvAdcSetMode(channel, _ffi.kCtr700DrvAnalogMode_Current)
         self._checkResult(result)
 
     def temperature_get(self, channel):
-        value = _ffibuilder.new('int32_t*')
+        value = _ffibuilder.new("int32_t*")
         result = _ffi.Ctr700DrvTmpGetValue(channel, value)
         self._checkResult(result)
         return float(value[0]) / 10000.0
 
     def register_interrupt(self, channel, rising, falling, callback):
-        cb = _ffibuilder.callback('void(uint8_t, uint8_t)')(callback)
+        cb = _ffibuilder.callback("void(uint8_t, uint8_t)")(callback)
         self._callbacks[channel] = cb
 
         trigger = 0
