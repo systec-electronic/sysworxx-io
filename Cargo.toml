@@ -83,11 +83,6 @@ assets = [
         "644",
     ],
     [
-        "include/sysworxx_io_conly.h",
-        "/usr/include/arm-linux-gnueabihf/",
-        "644",
-    ],
-    [
         "systemd/iodaemon.service",
         "/etc/systemd/system/",
         "644",
