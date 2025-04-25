@@ -310,7 +310,7 @@ int32_t Ctr700DrvGetTickCount       (uint32_t* puTickCount_p);
  *        serviced in time, an error will be reported by the return value of
  *        Ctr700DrvServiceWatchdog().
  *
- * The watchdog intervall has a fixed timeout setting of:
+ * The watchdog interval has a fixed timeout setting of:
  * - 1000 ms for non-monitoring mode
  * - 900 ms for monitoring mode
  *
