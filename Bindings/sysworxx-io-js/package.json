@@ -1,6 +1,6 @@
 {
   "name": "sysworxx-io-js",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "JavaScript bindings for I/O library for accessing basic peripherals (digital/analog I/O's, watchdog, etc) on sysWORXX devices",
   "main": "index.node",
   "scripts": {
