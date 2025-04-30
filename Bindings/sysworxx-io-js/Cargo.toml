@@ -8,17 +8,11 @@ exclude = ["index.node"]
 [lib]
 crate-type = ["cdylib"]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 lazy_static = "1.4.0"
+sysworxx-io = { path = "../.." }
 
 [dependencies.neon]
 version = "0.10"
 default-features = false
 features = ["napi-4", "channel-api"]
-
-[build-dependencies]
-# HACK: ensure that libsysworxx_io.so is build before this one since this links
-# against it links against it.
-sysworxx-io = { path = "../.." }
